@@ -30,5 +30,5 @@ python3 powerXor.py test.ps1 -k 13 -o run.ps1
 [*] Base64 encoding
 [*] Writing to output file: run.ps1
 [*] Process completed.
-``
+```
 Can then be run on Windows.
