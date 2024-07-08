@@ -4,9 +4,10 @@ import argparse
 import base64
 import random
 from pathlib import Path
+import os
 
 """
-Exemple: python3 powerXor.py test.ps1 -k 13 -o run.ps1
+Example: python3 powerXor.py test.ps1 -k 13 -o run.ps1 --template custom_template.ps1
 """
 
 def xor_encrypt(data, key):
@@ -18,6 +19,7 @@ def main():
     parser.add_argument("file_path", type=Path, help="Path to the PowerShell script file")
     parser.add_argument("-k", "--key", type=int, help="XOR encryption key (default: randomly generated)")
     parser.add_argument("-o", "--output", type=Path, help="Output file name (default: output.ps1)")
+    parser.add_argument("--template", type=Path, help="Path to the template file (default: template.ps1 in the script directory)")
     args = parser.parse_args()
 
     # Read the content of the file
@@ -29,14 +31,12 @@ def main():
     print(f"[*] Encoding the content (utf-16-le) ...")
     encoded_content = script_content.encode('utf-16-le')
     
-
     # Generate or use provided key
     if args.key is None:
         key = random.randint(0, 255)
     else:
         key = args.key
     
-
     # XOR encrypt the content
     print(f"[*] Xoring with Key: {key}")
     encrypted_content = xor_encrypt(encoded_content, key)
@@ -47,7 +47,15 @@ def main():
 
     # Prepare output content
     output_content = ""
-    template_path = Path("template.ps1")
+    
+    # Determine template path
+    if args.template:
+        template_path = args.template
+    else:
+        script_dir = Path(__file__).parent
+        template_path = script_dir / "template.ps1"
+    
+    # Read the template file
     with template_path.open('r', encoding='utf-8') as template_file:
         output_content = template_file.read().replace("%%KEY%%", str(key)).replace("%%DATA%%", encoded_result)
 
